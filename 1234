@@ -1,5 +1,23 @@
 #requires -modules getsql -version 7
-using namespace "System.Security.Cryptography"
+function global:PSUsing {
+    param (
+        [System.IDisposable] $inputObject = $(throw "The parameter -inputObject is required."),
+        [ScriptBlock] $scriptBlock = $(throw "The parameter -scriptBlock is required.")
+    )
+
+    Try {
+        &$scriptBlock
+    } Finally {
+        if ($inputObject -ne $null) {
+            if ($inputObject.psbase -eq $null) {
+                $inputObject.Dispose()
+            } else {
+                $inputObject.psbase.Dispose()
+            }
+        }
+    }
+}
+PSUsing namespace "System.Security.Cryptography"
 param (
     #Location of the database file replace \Google\Chrome as required
     $DbPath     = (Join-path ([environment]::GetFolderPath('UserProfile')) 'AppData\Local\Google\Chrome\User Data\Default\Login Data'),
